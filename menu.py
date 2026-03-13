@@ -1,39 +1,53 @@
 import random
 
-# 1. 맛집 데이터
-menu_data = {
-    "기쁨": ["스테이크", "파스타", "초밥", "피자", "당근케이크"],
-    "슬픔": ["떡볶이", "불닭볶음면", "짬뽕", "김치찜", "초콜릿"],
-    "피곤": ["삼겹살", "국밥", "장어덮밥", "아메리카노", "곰탕"],
-    "보통": ["치킨", "햄버거", "백반", "돈가스", "샌드위치"]
+# 1. 기본 데이터베이스
+menu_db = {
+    "한식": {
+        "밥": ["비빔밥", "김치볶음밥", "제육덮밥", "국밥"],
+        "면": ["잔치국수", "칼국수", "냉면"]
+    },
+    "양식": {
+        "밥": ["리조또", "오므라이스", "필라프"],
+        "면": ["까르보나라", "알리오올리오", "토마토 파스타"]
+    }
+    # (일식, 중식도 동일한 구조로 추가 가능합니다)
 }
 
-print("--- 👋 안녕하세요! 만족할 때까지 찾아주는 메뉴 추천기입니다 ---")
-user_name = input("이름이 무엇인가요? ")
-user_feel = input("현재 기분이 어떠신가요? (기쁨, 슬픔, 피곤, 보통): ")
+print("--- 🌦️ 날씨와 취향을 고려한 무한 추천기 ---")
 
-# 기분이 데이터에 없는 경우 처리
-if user_feel not in menu_data:
-    print(f"죄송해요, {user_feel} 기분 데이터는 없어서 '보통' 기분으로 추천해 드릴게요.")
-    user_feel = "보통"
+# 2. 날씨 및 취향 입력
+weather = input("오늘 날씨가 어떤가요? (맑음, 비): ")
+category = input("음식 종류 (한식, 양식): ")
+food_type = input("밥 vs 면: ")
 
-# 2. 반복문 시작: 사용자가 만족할 때까지!
+# 선택한 카테고리의 리스트 가져오기 (원본 보존을 위해 복사본 생성)
+options = list(menu_db[category][food_type])
+rejected_items = []  # 거절한 메뉴를 모아둘 바구니
+
+# 3. 날씨에 따른 메뉴 추가 (조건문 + 리스트 추가)
+if weather == "비":
+    extra = "파전" if food_type == "밥" else "짬뽕"
+    print(f"☔ 비가 오니까 특별히 '{extra}'을(를) 후보에 추가할게요!")
+    options.append(extra)
+
+# 4. 추천 루프
 while True:
-    # 해당 기분 리스트에서 무작위 하나 선택
-    pick = random.choice(menu_data[user_feel])
-    
-    print(f"\n🤖 추천 메뉴: [{pick}] 어떠신가요?")
-    answer = input("마음에 드시나요? (응 / 아니 / 다른거): ")
+    # 메뉴가 다 떨어졌을 때의 처리 (재시작 로직)
+    if not options:
+        print("\n🤔 모든 후보를 거절하셨네요. 거절했던 메뉴들로 다시 골라볼까요?")
+        options = list(rejected_items) # 거절했던 메뉴들을 다시 후보로 복구
+        rejected_items = []            # 거절 바구니 비우기
+        continue # 루프의 처음으로 돌아가기
 
-    # 3. 사용자 대답에 따른 조건 분기
-    if answer == "응" or answer == "좋아":
-        print(f"🎉 탁월한 선택입니다! {user_name}님, 맛있는 식사 되세요!")
-        break  # 루프를 탈출하여 프로그램 종료
-    
-    elif answer == "아니" or answer == "다른거":
-        print("🔄 다른 메뉴를 찾아볼게요...")
-        # 이 루프는 break를 만나지 않았으므로 다시 위로 올라가서 random.choice를 실행합니다.
-    
+    pick = random.choice(options)
+    print(f"\n💡 추천 메뉴: [{pick}]")
+    ans = input("마음에 드시나요? (y/n): ").lower()
+
+    if ans == 'y':
+        print(f"🎉 드디어 결정! [{pick}] 맛있게 드세요!")
+        break
     else:
-        print("❓ '응' 또는 '아니'로 대답해 주세요!")
+        print(f"❌ '{pick}' 제외.")
+        rejected_items.append(pick) # 거절한 메뉴 보관
+        options.remove(pick)        # 현재 후보에서 삭제
     
