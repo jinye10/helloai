@@ -1,0 +1,58 @@
+import requests
+from geopy.geocoders import Nominatim
+import time
+
+# 1. 초기 설정 (주소 변환 전문가 소환)
+geolocator = Nominatim(user_agent="my_iss_tracker_v1")
+
+def get_iss_data():
+    """ISS의 실시간 위도, 경도 데이터를 가져옵니다."""
+    url = "http://api.open-notify.org/iss-now.json"
+    response = requests.get(url)
+    data = response.json()
+    lat = float(data['iss_position']['latitude'])
+    lon = float(data['iss_position']['longitude'])
+    return lat, lon
+
+def get_human_address(lat, lon):
+    """좌표를 사람이 읽을 수 있는 주소로 변환합니다."""
+    try:
+        location = geolocator.reverse(f"{lat}, {lon}", language='ko', timeout=3)
+        return location.address if location else "🌊 넓은 바다 위를 비행 중"
+    except:
+        return "🌐 주소 데이터 분석 중..."
+
+# --- 메인 프로그램 시작 ---
+print("🚀 실시간 ISS 추적 프로그램을 시작합니다.")
+try:
+    feel_score = int(input("오늘 당신의 기분 점수는? (1~10): "))
+except:
+    feel_score = 5
+
+print("\n📡 데이터를 수집 중입니다... (중지하려면 Ctrl+C)")
+print("-" * 50)
+
+try:
+    while True:
+        lat, lon = get_iss_data()
+        address = get_human_address(lat, lon)
+        
+        print(f"\n[실시간 위치 확인]")
+        print(f"📍 좌표: 위도 {lat}, 경도 {lon}")
+        print(f"🏠 주소: {address}")
+        
+        # 기분 점수에 따른 메시지 (창의적 요소)
+        if feel_score >= 8:
+            print("✨ 기분이 좋으시군요! 저 위 우주비행사들도 당신을 응원할 거예요.")
+        elif feel_score <= 3:
+            print("🍀 우주 정거장의 고요함을 느껴보세요. 조금은 위로가 될 거예요.")
+
+        # 한국 상공 판별 (종료 조건)
+        if (33 <= lat <= 39) and (124 <= lon <= 132):
+            print("\n🇰🇷 [임무 완료] ISS가 한국 상공에 진입했습니다! 프로그램을 종료합니다.")
+            break
+            
+        time.sleep(10) # 서버 부하 방지를 위한 휴식
+
+except KeyboardInterrupt:
+    print("\n\n👋 사용자의 요청으로 안전하게 종료합니다. 우주 여행을 마칩니다!")
