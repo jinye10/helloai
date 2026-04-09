@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 # ==========================================
 # 🔑 OpenWeather API 키 입력
 # ==========================================
-WEATHER_API_KEY = "f993e8718fbec57e1640da324cf3b61b"
+WEATHER_API_KEY = "키 입력하세요"
 # ==========================================
 
 
